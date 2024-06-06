@@ -13,4 +13,8 @@ public class Money {
     public Double denomination;
 
 
+    public String getDisplayText() {
+        return (type == MoneyT.COIN ? "monedas" : "billetes");
+    }
+
 }

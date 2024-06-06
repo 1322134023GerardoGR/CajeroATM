@@ -8,4 +8,6 @@ import java.util.List;
 public interface AtmService {
     List<Money> calculateWithdrawal(Double amount) throws InsufficientFundsException;
     List<Money> getAvailableMoney();
+    public double calculateTotalWithdrawn(List<Money> withdrawal);
+    public double calculateTotalAvailable();
 }

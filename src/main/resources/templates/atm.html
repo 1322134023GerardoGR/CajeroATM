@@ -9,7 +9,6 @@
 <div class="container">
     <h1 class="my-4">Cajero Automático</h1>
 
-    <!-- Formulario de Retiro -->
     <form action="/withdraw" method="post" class="mb-4">
         <div class="mb-3">
             <label for="amount" class="form-label">Monto a retirar:</label>
@@ -18,7 +17,6 @@
         <button type="submit" class="btn btn-primary">Retirar</button>
     </form>
 
-    <!-- Mensajes de Resultado -->
     <div th:if="${requestedAmount != null}">
         <div class="alert alert-success" role="alert">
             Retiro de: <span th:text="${requestedAmount}">0</span> pesos realizado con éxito.
@@ -30,40 +28,58 @@
         </div>
     </div>
 
-    <!-- Tabla de Cantidades Disponibles -->
-    <h2 class="my-4">Dinero Disponible</h2>
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th>Denominación</th>
-            <th>Cantidad</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="money : ${availableMoney}">
-            <td th:text="${money.denomination} + ' ' + (money.type == T(com.system.cajeroatm.enums.MoneyT).COIN ? 'monedas' : 'billetes')"></td>
-            <td th:text="${money.cant}"></td>
-        </tr>
-        </tbody>
-    </table>
 
-    <!-- Tabla de Detalles del Retiro -->
+    <div style="display: flex; justify-content: space-between;">
+        <div>
+            <h2 class="my-4">Dinero Disponible</h2>
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Cantidad</th>
+                    <th>Denominación</th>
+                    <th>Tipo</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="money : ${availableMoney}">
+                    <td th:text="${money.cant}"></td>
+                    <td th:text="${money.denomination}"></td>
+                    <td th:text="${money.displayText}"></td>
+                </tr>
+
+                <tr th:if="${totalAvailable != null}">
+                    <td><strong>Total Disponible</strong></td>
+                    <td th:text="${totalAvailable}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+
     <div th:if="${requestedAmount != null}">
         <h2 class="my-4">Detalles del Retiro</h2>
         <table class="table table-striped">
             <thead>
             <tr>
-                <th>Denominación</th>
                 <th>Cantidad</th>
+                <th>Denominación</th>
+                <th>Tipo</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="money : ${withdrawal}">
-                <td th:text="${money.denomination} + ' ' + (money.type == T(com.system.cajeroatm.enums.MoneyT).COIN ? 'monedas' : 'billetes')"></td>
                 <td th:text="${money.cant}"></td>
+                <td th:text="${money.denomination}"></td>
+                <td th:text="${money.displayText}"></td>
+            </tr>
+
+            <tr th:if="${totalWithdrawn != null}">
+                <td><strong>Total Retirado</strong></td>
+                <td th:text="${totalWithdrawn}"></td>
             </tr>
             </tbody>
         </table>
+    </div>
     </div>
 </div>
 

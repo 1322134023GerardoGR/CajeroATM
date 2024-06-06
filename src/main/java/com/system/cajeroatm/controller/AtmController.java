@@ -14,26 +14,32 @@ import java.util.List;
 
 @Controller
 public class AtmController {
-    private final AtmServiceImpl atmServiceImpl;
+    private final AtmService atmService;
 
     @Autowired
-    public AtmController(AtmServiceImpl atmServiceImpl) {
-        this.atmServiceImpl = atmServiceImpl;
+    public AtmController(AtmService atmService) {
+        this.atmService = atmService;
     }
 
     @GetMapping("/")
     public String showAtm(Model model) {
-        model.addAttribute("moneyT", MoneyT.class);
-        model.addAttribute("availableMoney", atmServiceImpl.getAvailableMoney());
+        double totalAvailable = atmService.calculateTotalAvailable();
+        model.addAttribute("availableMoney", atmService.getAvailableMoney());
+        model.addAttribute("totalAvailable", totalAvailable);
         return "atm";
     }
 
     @PostMapping("/withdraw")
     public String withdrawMoney(@RequestParam double amount, Model model) {
         try {
-            List<Money> withdrawal = atmServiceImpl.calculateWithdrawal(amount);
+            List<Money> withdrawal = atmService.calculateWithdrawal(amount);
+            double totalWithdrawn = atmService.calculateTotalWithdrawn(withdrawal);
+            double totalAvailable = atmService.calculateTotalAvailable();
             model.addAttribute("withdrawal", withdrawal);
+            model.addAttribute("totalWithdrawn", totalWithdrawn);
+            model.addAttribute("totalAvailable", totalAvailable);
             model.addAttribute("requestedAmount", amount);
+            model.addAttribute("availableMoney", atmService.getAvailableMoney());
         } catch (InsufficientFundsException e) {
             model.addAttribute("error", e.getMessage());
         }
