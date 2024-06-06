@@ -1,5 +1,6 @@
 package com.system.cajeroatm.services;
 
+import com.system.cajeroatm.exception.AmountNotAllowed;
 import com.system.cajeroatm.exception.InsufficientFundsException;
 import com.system.cajeroatm.model.Money;
 import org.springframework.stereotype.Service;
@@ -33,23 +34,33 @@ public class AtmServiceImpl implements AtmService{
 
 
     @Override
-    public List<Money> calculateWithdrawal(Double amount) throws InsufficientFundsException {
+    public List<Money> calculateWithdrawal(Double amount) throws InsufficientFundsException, AmountNotAllowed{
         List<Money> withdrawal = new ArrayList<>();
-        double originalAmount = amount;
-        for (Money money : availableMoney) {
-            int neededCant = (int) (amount / money.getDenomination());
-            if (neededCant > 0) {
-                int withdrawnQuantity = Math.min(neededCant, money.getCant());
-                if (withdrawnQuantity > 0) {
-                    withdrawal.add(new Money(money.getType(), withdrawnQuantity, money.getDenomination()));
-                    amount -= withdrawnQuantity * money.getDenomination();
-                    money.setCant(money.getCant() - withdrawnQuantity);
+        double fractionalPart = amount % 1;
+        if (amount < 0) {
+            throw new AmountNotAllowed("El monto ingresado no puede ser menor a 0");
+        }else if (fractionalPart > 0.5 || (fractionalPart < 0.5 && fractionalPart > 0)) {
+            throw new AmountNotAllowed("El monto ingresado no puede tener decimales más que .5");
+        }else{
+            double originalAmount = amount;
+            for (Money money : availableMoney) {
+                int neededCant = (int) (amount / money.getDenomination());
+                if (neededCant > 0) {
+                    int withdrawnQuantity = Math.min(neededCant, money.getCant());
+                    if (withdrawnQuantity > 0) {
+                        withdrawal.add(new Money(money.getType(), withdrawnQuantity, money.getDenomination()));
+                        amount -= withdrawnQuantity * money.getDenomination();
+                        money.setCant(money.getCant() - withdrawnQuantity);
+                    }
                 }
             }
+            if (amount > 0) {
+                throw new InsufficientFundsException("No hay suficiente dinero para retirar " + originalAmount + " pesos.");
+            }
         }
-        if (amount > 0) {
-            throw new InsufficientFundsException("No hay suficiente dinero para retirar " + originalAmount + " pesos.");
-        }
+
+
+
         return withdrawal;
     }
 

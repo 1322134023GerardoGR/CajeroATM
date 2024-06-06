@@ -1,6 +1,7 @@
 package com.system.cajeroatm.controller;
 
 import com.system.cajeroatm.enums.MoneyT;
+import com.system.cajeroatm.exception.AmountNotAllowed;
 import com.system.cajeroatm.exception.InsufficientFundsException;
 import com.system.cajeroatm.model.Money;
 import com.system.cajeroatm.services.AtmService;
@@ -40,8 +41,9 @@ public class AtmController {
             model.addAttribute("totalAvailable", totalAvailable);
             model.addAttribute("requestedAmount", amount);
             model.addAttribute("availableMoney", atmService.getAvailableMoney());
-        } catch (InsufficientFundsException e) {
+        } catch (InsufficientFundsException | AmountNotAllowed e) {
             model.addAttribute("error", e.getMessage());
+            return showAtm(model);
         }
         return "atm";
     }
